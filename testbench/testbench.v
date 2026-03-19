@@ -4,10 +4,6 @@ module testbench;
 
     reg clk, rst;
 
-    reg ce, up, l;
-
-    reg [3:0] di;
-
     initial begin
         $dumpfile("tm1638.vcd");
         $dumpvars(0, testbench);
@@ -16,16 +12,6 @@ module testbench;
     initial begin
         clk = 1'b1;
         rst = 1'b1;
-        ce = 0;
-        up = 0;
-        di = 0;
-        l = 0;
-        #80;
-        up = 1;
-        #30;
-        up = 0;
-        #30;
-        up = 1;
     end
 
     always #0.5 clk = ~clk;
@@ -37,9 +23,9 @@ module testbench;
         $finish;
     end
 
-    tm1638 TM1638 (
+    top Top (
         .clk(clk),
-        .rst(rst)
+        .rst_n(!rst)
     );
 
 endmodule

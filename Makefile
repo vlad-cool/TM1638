@@ -4,7 +4,7 @@ all: build run
 
 build: build/testbench.vpp
 
-build/testbench.vpp: src/tm1638.v testbench/testbench.v
+build/testbench.vpp: src/tm1638.v testbench/testbench.v src/top.v
 	mkdir -p build
 	iverilog -o $@ $^
 
