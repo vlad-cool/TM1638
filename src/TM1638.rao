@@ -10,6 +10,7 @@
             <Signal capture_enable="true">tm_data_out</Signal>
             <Signal capture_enable="true">tm_data_dir</Signal>
             <Signal capture_enable="true">tm_stb</Signal>
+            <Signal capture_enable="true">tm_dio</Signal>
         </SignalList>
         <Triggers>
             <Trigger index="0">
@@ -32,7 +33,11 @@
                     <Signal>uart_tx</Signal>
                 </SignalList>
             </Trigger>
-            <Trigger index="4"/>
+            <Trigger index="4">
+                <SignalList>
+                    <Signal>tm_data_dir</Signal>
+                </SignalList>
+            </Trigger>
             <Trigger index="5"/>
             <Trigger index="6"/>
             <Trigger index="7"/>
@@ -50,7 +55,7 @@
             <MatchUnit index="1" enabled="1" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="1" value1="0" trigger="1"/>
             <MatchUnit index="2" enabled="1" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="0" value1="0" trigger="2"/>
             <MatchUnit index="3" enabled="1" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="0" value1="0" trigger="3"/>
-            <MatchUnit index="4" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="4" enabled="1" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="0" value1="0" trigger="4"/>
             <MatchUnit index="5" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
             <MatchUnit index="6" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
             <MatchUnit index="7" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
@@ -64,8 +69,8 @@
             <MatchUnit index="15" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
         </MatchUnits>
         <Expressions type="Dynamic" ex_implementation="1">
-            <Expression>M3</Expression>
+            <Expression>M4</Expression>
         </Expressions>
     </AoCore>
-    <GAO_ID>1101100001101101</GAO_ID>
+    <GAO_ID>1101001100011000</GAO_ID>
 </GAO_CONFIG>

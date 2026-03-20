@@ -1,5 +1,5 @@
 module tm1638 #(
-    parameter CLK_DIV_FACTOR = 27
+    parameter CLK_DIV_FACTOR = 14
 ) (
     input wire clk,
     input wire rst,
@@ -11,6 +11,9 @@ module tm1638 #(
     input wire data_in_read,
     input wire data_in_valid,
     output wire data_in_ready,
+
+    output reg [31:0] data_out,
+    output wire data_out_valid,
 
     input  wire tm_data_in,
     output wire tm_data_out,
@@ -24,24 +27,33 @@ module tm1638 #(
     localparam READ_STATE = 2;
     localparam WAIT_STATE = 3;
 
-    wire clk_posedge;
+    wire clk_posedge, clk_negedge;
     wire transmitter_idle;
+
+    wire read_clk_active;
 
     reg [1:0] state;
     reg [$clog2(CLK_DIV_FACTOR)-1:0] clk_div_counter;
     reg divided_clock;
 
     reg [7:0] data;
-    reg [4:0] data_count;
+    reg [4:0] data_write_count;
 
-    assign data_in_ready = (((state == READ_STATE | state == WRITE_STATE) & data_count <= 1) | state == IDLE_STATE | state == WAIT_STATE) & clk_posedge;
+    reg [5:0] data_read_count;
 
-    assign clk_posedge = ~divided_clock & clk_div_counter == 0;
+    assign data_in_ready = ((state == READ_STATE & data_read_count <= 1) | (state == WRITE_STATE & data_write_count <= 1) | state == IDLE_STATE | state == WAIT_STATE) & clk_negedge;
+
+    assign clk_negedge = ~divided_clock & clk_div_counter == 0;
+    assign clk_posedge = divided_clock & clk_div_counter == 0;
 
     assign tm_data_out = data[0];
-    assign tm_data_dir = 1;
-    assign tm_clk_out = (tm_stb_out | ~divided_clock) | !(data_count > 1);
+    assign tm_data_dir = data_read_count == 0;
+    assign tm_clk_out = (tm_stb_out | ~divided_clock) | ((state != WRITE_STATE | data_write_count <= 1) & (state != READ_STATE | !read_clk_active));
     assign tm_stb_out = ~(state == READ_STATE | state == WRITE_STATE);
+
+    assign read_clk_active = data_read_count != 'h26 & data_read_count != 'h25 & data_read_count != 'h1C & data_read_count != 'h13 & data_read_count != 'h0A & data_read_count != 'h01;
+
+    assign data_out_valid = data_read_count == 1;
 
     always @(posedge clk) begin
         if (rst) begin
@@ -62,7 +74,7 @@ module tm1638 #(
     always @(posedge clk) begin
         if (rst) begin
             state <= IDLE_STATE;
-        end else if (!clk_posedge) begin
+        end else if (!clk_negedge) begin
             // Start only on divided clock posedge
         end else if (data_in_ready & data_in_valid) begin
             if (data_in_wait) begin
@@ -80,28 +92,43 @@ module tm1638 #(
     always @(posedge clk) begin
         if (rst) begin
             data <= 0;
-            data_count <= 0;
-        end else if (!clk_posedge) begin
+            data_write_count <= 0;
+        end else if (!clk_negedge) begin
             // Start only on divided clock posedge
-        end else if (data_in_ready & data_in_valid & !data_in_wait) begin
+        end else if (data_in_ready & data_in_valid & !data_in_wait & !data_in_read) begin
             data <= data_in;
-            data_count <= 9;
-        end else begin
+            data_write_count <= 9;
+        end else if (state == WRITE_STATE) begin
             data <= {1'b0, data[7:1]};
-            data_count <= data_count - 1;
+            data_write_count <= data_write_count - 1;
         end
     end
 
+    always @(posedge clk) begin
+        if (rst) begin
+            data_read_count <= 0;
+        end else if (!clk_negedge) begin
+            // Start only on divided clock posedge
+        end else if (data_in_ready & data_in_valid & !data_in_wait & data_in_read) begin
+            data_read_count <= 38;
+        end else if (state == READ_STATE) begin
+            data_read_count <= data_read_count - 1;
+        end
+    end
 
+    always @(posedge clk) begin
+        if (clk_posedge & read_clk_active) begin
+            data_out <= {data_out[30:0], tm_data_in};
+        end
+    end
 
-
-    // assign transmitter_idle = data_count == 0 & (init_clear_counter == 0 | state != INIT_STATE_0);
+    // assign transmitter_idle = data_write_count == 0 & (init_clear_counter == 0 | state != INIT_STATE_0);
 
 
     // always @(posedge clk) begin
     //     if (rst) begin
     //         state <= RESET_STATE;
-    //     end else if (!clk_posedge) begin
+    //     end else if (!clk_negedge) begin
     //         // Start only on divided clock posedge
     //     end else if (state == RESET_STATE) begin
     //         state <= INIT_STATE_0;
@@ -117,32 +144,32 @@ module tm1638 #(
     // always @(posedge clk) begin
     //     if (rst) begin
     //         data <= 0;
-    //         data_count <= 0;
-    //     end else if (!clk_posedge) begin
+    //         data_write_count <= 0;
+    //     end else if (!clk_negedge) begin
     //         // Start only on divided clock posedge
-    //     end else if (data_count != 0) begin
+    //     end else if (data_write_count != 0) begin
     //         data <= {1'b0, data[15:1]};
-    //         data_count <= data_count - 1;
+    //         data_write_count <= data_write_count - 1;
     //     end else if (state == INIT_STATE_0) begin
     //         data <= init_clear_counter == 11 ? 8'b01000000 : 8'h00;
     //         // data <= init_clear_counter == 11 ? 8'b01000000 : {init_clear_counter, init_clear_counter};
-    //         data_count <= 8;
+    //         data_write_count <= 8;
     //     end else if (state == INIT_STATE_1) begin
     //         data <= control_command;
-    //         data_count <= 8;
+    //         data_write_count <= 8;
     //     end else if (state == INIT_STATE_2) begin
     //         data <= {8'b11101011, address_command};
-    //         data_count <= 16;
+    //         data_write_count <= 16;
     //     end
     // end
 
     // always @(posedge clk) begin
     //     if (rst | state != INIT_STATE_0) begin
     //         init_clear_counter <= 12;
-    //     end else if (!clk_posedge) begin
+    //     end else if (!clk_negedge) begin
     //         // Start only on divided clock posedge
     //     end else begin
-    //         if (data_count == 1 & init_clear_counter != 0) begin
+    //         if (data_write_count == 1 & init_clear_counter != 0) begin
     //             init_clear_counter <= init_clear_counter - 1;
     //         end
     //     end

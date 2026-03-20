@@ -19,7 +19,7 @@ module testbench;
     initial begin
         #10;
         rst = 0;
-        #20000;
+        #200000;
         $finish;
     end
 
