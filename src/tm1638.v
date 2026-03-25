@@ -4,8 +4,6 @@ module tm1638 #(
     input wire clk,
     input wire rst,
 
-    input wire [7:0] disp_1,
-
     input wire [7:0] data_in,
     input wire data_in_wait,
     input wire data_in_read,
@@ -59,7 +57,7 @@ module tm1638 #(
         if (rst) begin
             clk_div_counter <= 0;
         end else begin
-            clk_div_counter <= clk_div_counter == CLK_DIV_FACTOR - 1 ? 0 : clk_div_counter + 1;
+            clk_div_counter <= clk_div_counter == CLK_DIV_FACTOR - 1 ? 4'b0 : clk_div_counter + 1'b1;
         end
     end
 
@@ -100,7 +98,7 @@ module tm1638 #(
             data_write_count <= 9;
         end else if (state == WRITE_STATE) begin
             data <= {1'b0, data[7:1]};
-            data_write_count <= data_write_count - 1;
+            data_write_count <= data_write_count - 1'b1;
         end
     end
 
@@ -112,7 +110,7 @@ module tm1638 #(
         end else if (data_in_ready & data_in_valid & !data_in_wait & data_in_read) begin
             data_read_count <= 38;
         end else if (state == READ_STATE) begin
-            data_read_count <= data_read_count - 1;
+            data_read_count <= data_read_count - 1'b1;
         end
     end
 

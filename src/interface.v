@@ -47,7 +47,7 @@ module tm1638_interface (
     wire [31:0] data_out_wire;
     wire data_out_valid;
 
-    reg [7:0] counter;
+    reg [4:0] counter;
 
     // assign data_in_valid = counter < INIT_LENGTH;
     // assign data_in_valid = counter < 5;
@@ -108,7 +108,7 @@ module tm1638_interface (
         if (!rst_n) begin
             counter <= 0;
         end else if (data_in_ready & counter < INIT_LENGTH - 1) begin
-            counter <= counter + 1;
+            counter <= counter + 1'b1;
         end else if (data_in_ready) begin
             counter <= 2;
         end

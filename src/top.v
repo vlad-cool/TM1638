@@ -9,36 +9,36 @@ module top (
     input  wire uart_rx,
     output wire uart_tx,
 
-    input wire btn,
-
-    output wire [5:0] leds,
-
-    input wire [3:0] switches
+    input wire invert_switch,
+    output wire [5:0] leds
 );
+    `include "display_decoder.vh"
 
     wire [7:0] btns;
-
-    assign leds = 6'b111111;
-
-//    assign leds[0] = ^btns[31:24];
-//    assign leds[1] = ^btns[23:16];
-//    assign leds[2] = ^btns[15:8];
-//    assign leds[3] = ^btns[7:0];
-    //     assign leds[4] = uart_rx;
-    //     assign leds[5] = uart_tx;
-
     wire tm_data_in;
     wire tm_data_out;
     wire tm_data_dir;
+    reg [7:0] disp[15:0];
+
+    wire rx_led, tx_led;
+
+    wire local0_wren_o;
+    wire [7:0] local0_addr_o;
+    wire [31:0] local0_wdat_o;
 
     assign tm_data_in = tm_dio;
     assign tm_dio = tm_data_dir ? tm_data_out : 1'bz;
 
-    //    reg d_0
+    assign leds[5:2] = 4'hf;
+    assign leds[0] = ~rx_led;
+    assign leds[1] = ~tx_led;
 
-    `include "display_decoder.v"
+    wire rd_en;
+    reg  rd_valid;
 
-    reg [7:0] disp[15:0];
+    always @(posedge clk) begin
+        rd_valid <= rd_en;
+    end
 
     led_and_key ledAndKey (
         .clk  (clk),
@@ -55,7 +55,7 @@ module top (
         .disp_8({disp[8][4], display_decode(disp[8][3:0])}),
 
         .btns(btns),
-        .leds(btns),
+        .leds({8{invert_switch}} ^ btns),
 
         .tm_data_in (tm_data_in),
         .tm_data_out(tm_data_out),
@@ -64,13 +64,9 @@ module top (
         .tm_stb_out (tm_stb)
     );
 
-    wire local0_wren_o;
-    wire [7:0] local0_addr_o;
-    wire [31:0] local0_wdat_o;
-
     genvar i;
     generate
-        for (i = 0; i < 16; i = i + 1) begin: displays
+        for (i = 0; i < 16; i = i + 1) begin : displays
             always @(posedge clk) begin
                 if (!rst_n) begin
                     disp[i] <= 8'h00;
@@ -81,13 +77,7 @@ module top (
         end
     endgenerate
 
-    wire rd_en;
-    reg  rd_valid;
-
-    always @(posedge clk) begin
-        rd_valid <= rd_en;
-    end
-
+`ifndef VERILATOR
     Uart_to_Bus_Top your_instance_name (
         .rst_n_i(rst_n),
         .clk_i(clk),
@@ -98,10 +88,11 @@ module top (
         .local0_rdat_i({24'd0, btns}),
         .local0_rdat_vld_i(rd_valid),
         .local0_wdat_rdy_i(1'b1),
-        .uart_rx_led_o(leds[4]),
-        .uart_tx_led_o(leds[5]),
+        .uart_rx_led_o(rx_led),
+        .uart_tx_led_o(tx_led),
         .uart_rx_i(uart_rx),
         .uart_tx_o(uart_tx)
     );
+`endif
 
 endmodule
