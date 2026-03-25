@@ -30,7 +30,7 @@
             </Trigger>
             <Trigger index="3">
                 <SignalList>
-                    <Signal>uart_tx</Signal>
+                    <Signal>uart_rx</Signal>
                 </SignalList>
             </Trigger>
             <Trigger index="4">
@@ -69,7 +69,7 @@
             <MatchUnit index="15" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
         </MatchUnits>
         <Expressions type="Dynamic" ex_implementation="1">
-            <Expression>M4</Expression>
+            <Expression>M3</Expression>
         </Expressions>
     </AoCore>
     <GAO_ID>1101001100011000</GAO_ID>
