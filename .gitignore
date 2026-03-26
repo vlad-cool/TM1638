@@ -1,4 +1,6 @@
 /build
-/impl
+/impl/gwsynthesis
+/impl/pnr
+/impl/temp
 /tm1638.gtkw
 /tm1638.vcd
