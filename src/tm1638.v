@@ -26,7 +26,6 @@ module tm1638 #(
     localparam WAIT_STATE = 3;
 
     wire clk_posedge, clk_negedge;
-    wire transmitter_idle;
 
     wire read_clk_active;
 
@@ -119,58 +118,5 @@ module tm1638 #(
             data_out <= {data_out[30:0], tm_data_in};
         end
     end
-
-    // assign transmitter_idle = data_write_count == 0 & (init_clear_counter == 0 | state != INIT_STATE_0);
-
-
-    // always @(posedge clk) begin
-    //     if (rst) begin
-    //         state <= RESET_STATE;
-    //     end else if (!clk_negedge) begin
-    //         // Start only on divided clock posedge
-    //     end else if (state == RESET_STATE) begin
-    //         state <= INIT_STATE_0;
-    //     end else if (state == INIT_STATE_0 && transmitter_idle) begin
-    //         state <= INIT_STATE_1;
-    //     end else if (state == INIT_STATE_1 && transmitter_idle) begin
-    //         state <= INIT_STATE_2;
-    //     end else if (state == INIT_STATE_2 && transmitter_idle) begin
-    //         state <= IDLE_STATE;
-    //     end
-    // end
-
-    // always @(posedge clk) begin
-    //     if (rst) begin
-    //         data <= 0;
-    //         data_write_count <= 0;
-    //     end else if (!clk_negedge) begin
-    //         // Start only on divided clock posedge
-    //     end else if (data_write_count != 0) begin
-    //         data <= {1'b0, data[15:1]};
-    //         data_write_count <= data_write_count - 1;
-    //     end else if (state == INIT_STATE_0) begin
-    //         data <= init_clear_counter == 11 ? 8'b01000000 : 8'h00;
-    //         // data <= init_clear_counter == 11 ? 8'b01000000 : {init_clear_counter, init_clear_counter};
-    //         data_write_count <= 8;
-    //     end else if (state == INIT_STATE_1) begin
-    //         data <= control_command;
-    //         data_write_count <= 8;
-    //     end else if (state == INIT_STATE_2) begin
-    //         data <= {8'b11101011, address_command};
-    //         data_write_count <= 16;
-    //     end
-    // end
-
-    // always @(posedge clk) begin
-    //     if (rst | state != INIT_STATE_0) begin
-    //         init_clear_counter <= 12;
-    //     end else if (!clk_negedge) begin
-    //         // Start only on divided clock posedge
-    //     end else begin
-    //         if (data_write_count == 1 & init_clear_counter != 0) begin
-    //             init_clear_counter <= init_clear_counter - 1;
-    //         end
-    //     end
-    // end
 
 endmodule

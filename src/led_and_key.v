@@ -10,7 +10,6 @@ module led_and_key (
     input wire [7:0] disp_5,
     input wire [7:0] disp_6,
     input wire [7:0] disp_7,
-    input wire [7:0] disp_8,
     input wire [7:0] leds,
 
     output wire [7:0] btns,
@@ -22,7 +21,9 @@ module led_and_key (
     output wire tm_stb_out
 );
 
+    /* verilator lint_off UNUSEDSIGNAL */
     wire [31:0] all_btns;
+    /* verilator lint_on UNUSEDSIGNAL */
 
     assign btns[0] = all_btns[3];
     assign btns[1] = all_btns[11];

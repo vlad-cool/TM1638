@@ -29,16 +29,7 @@ module tm1638_interface (
     output wire tm_stb_out
 );
 
-
-    wire [7:0] data_in;
-    wire data_in_wait;
-    wire data_in_read;
-    wire data_in_valid;
     wire data_in_ready;
-
-    wire command;
-    wire data;
-    wire control;
 
     localparam INIT_LENGTH = 27;
 
@@ -49,10 +40,6 @@ module tm1638_interface (
 
     reg [4:0] counter;
 
-    // assign data_in_valid = counter < INIT_LENGTH;
-    // assign data_in_valid = counter < 5;
-
-    // assign initial_sequence[0] = {1'b0, 1'b0, 8'b01000000};
     assign initial_sequence[0] = {1'b0, 1'b0, 8'b01000000};
     assign initial_sequence[1] = {1'b1, 1'b0, 8'b00000000};
     assign initial_sequence[2] = {1'b0, 1'b0, 8'b10001111};
@@ -80,29 +67,6 @@ module tm1638_interface (
     assign initial_sequence[24] = {1'b1, 1'b0, 8'b00000000};
     assign initial_sequence[25] = {1'b0, 1'b0, 8'b01000000};
     assign initial_sequence[26] = {1'b1, 1'b0, 8'b00000000};
-
-    reg [3:0] disp_counter;
-
-    reg [9:0] displays_updated;
-
-    reg [7:0] displays_reg[9:0];
-
-    wire [7:0] displays[9:0];
-
-    assign displays[0] = disp_0;
-    assign displays[1] = disp_1;
-    assign displays[2] = disp_2;
-    assign displays[3] = disp_3;
-    assign displays[4] = disp_4;
-    assign displays[5] = disp_5;
-    assign displays[6] = disp_6;
-    assign displays[7] = disp_7;
-    assign displays[8] = disp_8;
-    assign displays[9] = disp_9;
-
-    reg state;
-
-    reg [3:0] task_counter;
 
     always @(posedge clk) begin
         if (!rst_n) begin

@@ -18,13 +18,17 @@ module top (
     wire tm_data_in;
     wire tm_data_out;
     wire tm_data_dir;
-    reg [7:0] disp[15:0];
+    reg [7:0] disp[7:0];
 
     wire rx_led, tx_led;
 
-    wire local0_wren_o;
-    wire [7:0] local0_addr_o;
-    wire [31:0] local0_wdat_o;
+    wire wr_en;
+    wire [7:0] addr;
+    /* verilator lint_off UNUSEDSIGNAL */
+    wire [31:0] wr_data;
+    /* verilator lint_on UNUSEDSIGNAL */
+    wire rd_en;
+    reg  rd_valid;
 
     assign tm_data_in = tm_dio;
     assign tm_dio = tm_data_dir ? tm_data_out : 1'bz;
@@ -33,8 +37,6 @@ module top (
     assign leds[0] = ~rx_led;
     assign leds[1] = ~tx_led;
 
-    wire rd_en;
-    reg  rd_valid;
 
     always @(posedge clk) begin
         rd_valid <= rd_en;
@@ -52,7 +54,6 @@ module top (
         .disp_5({disp[5][4], display_decode(disp[5][3:0])}),
         .disp_6({disp[6][4], display_decode(disp[6][3:0])}),
         .disp_7({disp[7][4], display_decode(disp[7][3:0])}),
-        .disp_8({disp[8][4], display_decode(disp[8][3:0])}),
 
         .btns(btns),
         .leds({8{invert_switch}} ^ btns),
@@ -66,12 +67,12 @@ module top (
 
     genvar i;
     generate
-        for (i = 0; i < 16; i = i + 1) begin : displays
+        for (i = 0; i < 8; i = i + 1) begin : displays
             always @(posedge clk) begin
                 if (!rst_n) begin
                     disp[i] <= 8'h00;
-                end else if (local0_wren_o & local0_addr_o == i) begin
-                    disp[i] <= local0_wdat_o[7:0];
+                end else if (wr_en & addr == i) begin
+                    disp[i] <= wr_data[7:0];
                 end
             end
         end
@@ -81,10 +82,10 @@ module top (
     Uart_to_Bus_Top your_instance_name (
         .rst_n_i(rst_n),
         .clk_i(clk),
-        .local0_wren_o(local0_wren_o),
-        .local0_addr_o(local0_addr_o),
+        .local0_wren_o(wr_en),
+        .local0_addr_o(addr),
         .local0_rden_o(rd_en),
-        .local0_wdat_o(local0_wdat_o),
+        .local0_wdat_o(wr_data),
         .local0_rdat_i({24'd0, btns}),
         .local0_rdat_vld_i(rd_valid),
         .local0_wdat_rdy_i(1'b1),
@@ -93,6 +94,19 @@ module top (
         .uart_rx_i(uart_rx),
         .uart_tx_o(uart_tx)
     );
+`else
+    assign uart_tx = uart_rx;
+    assign rx_led = uart_rx;
+    assign tx_led = uart_tx;
+    assign wr_en = 1'b0;
+    assign rd_en = 1'b0;
+    assign addr = 8'h00;
+    assign wr_data = 32'h00000000;
+
+    /* verilator lint_off UNUSEDSIGNAL */
+    wire rd_valid_wire;
+    /* verilator lint_on UNUSEDSIGNAL */
+    assign rd_valid_wire = rd_valid;
 `endif
 
 endmodule
