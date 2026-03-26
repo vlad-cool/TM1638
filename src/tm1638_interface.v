@@ -22,8 +22,8 @@ module tm1638_interface (
     output reg [31:0] btns,
 
 
-    input  wire tm_data_in,
-    output wire tm_data_out,
+    input  wire tm_miso,
+    output wire tm_mosi,
     output wire tm_data_dir,
     output wire tm_clk_out,
     output wire tm_stb_out
@@ -90,11 +90,11 @@ module tm1638_interface (
         .clk(clk),
         .rst(~rst_n),
 
-        .tm_data_out(tm_data_out),
-        .tm_data_in (tm_data_in),
+        .tm_mosi(tm_mosi),
+        .tm_miso(tm_miso),
         .tm_data_dir(tm_data_dir),
-        .tm_clk_out (tm_clk_out),
-        .tm_stb_out (tm_stb_out),
+        .tm_clk_out(tm_clk_out),
+        .tm_stb_out(tm_stb_out),
 
         .data_in(initial_sequence[counter][7:0]),
         .data_in_wait(initial_sequence[counter][9]),

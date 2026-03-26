@@ -13,8 +13,8 @@ module tm1638 #(
     output reg [31:0] data_out,
     output wire data_out_valid,
 
-    input  wire tm_data_in,
-    output wire tm_data_out,
+    input  wire tm_miso,
+    output wire tm_mosi,
     output wire tm_data_dir,
     output wire tm_clk_out,
     output wire tm_stb_out
@@ -43,7 +43,7 @@ module tm1638 #(
     assign clk_negedge = ~divided_clock & clk_div_counter == 0;
     assign clk_posedge = divided_clock & clk_div_counter == 0;
 
-    assign tm_data_out = data[0];
+    assign tm_mosi = data[0];
     assign tm_data_dir = data_read_count == 0;
     assign tm_clk_out = (tm_stb_out | ~divided_clock) | ((state != WRITE_STATE | data_write_count <= 1) & (state != READ_STATE | !read_clk_active));
     assign tm_stb_out = ~(state == READ_STATE | state == WRITE_STATE);
@@ -115,7 +115,7 @@ module tm1638 #(
 
     always @(posedge clk) begin
         if (clk_posedge & read_clk_active) begin
-            data_out <= {data_out[30:0], tm_data_in};
+            data_out <= {data_out[30:0], tm_miso};
         end
     end
 

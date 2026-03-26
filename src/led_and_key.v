@@ -14,8 +14,8 @@ module led_and_key (
 
     output wire [7:0] btns,
 
-    input  wire tm_data_in,
-    output wire tm_data_out,
+    input  wire tm_miso,
+    output wire tm_mosi,
     output wire tm_data_dir,
     output wire tm_clk_out,
     output wire tm_stb_out
@@ -57,11 +57,11 @@ module led_and_key (
 
         .btns(all_btns),
 
-        .tm_data_in (tm_data_in),
-        .tm_data_out(tm_data_out),
+        .tm_miso(tm_miso),
+        .tm_mosi(tm_mosi),
         .tm_data_dir(tm_data_dir),
-        .tm_clk_out (tm_clk_out),
-        .tm_stb_out (tm_stb_out)
+        .tm_clk_out(tm_clk_out),
+        .tm_stb_out(tm_stb_out)
     );
 
 endmodule

@@ -15,8 +15,7 @@ module top (
     `include "display_decoder.vh"
 
     wire [7:0] btns;
-    wire tm_data_in;
-    wire tm_data_out;
+    wire tm_miso, tm_mosi;
     wire tm_data_dir;
     reg [7:0] disp[7:0];
 
@@ -28,10 +27,10 @@ module top (
     wire [31:0] wr_data;
     /* verilator lint_on UNUSEDSIGNAL */
     wire rd_en;
-    reg  rd_valid;
+    reg rd_valid;
 
-    assign tm_data_in = tm_dio;
-    assign tm_dio = tm_data_dir ? tm_data_out : 1'bz;
+    assign tm_miso = tm_dio;
+    assign tm_dio = tm_data_dir ? tm_mosi : 1'bz;
 
     assign leds[5:2] = 4'hf;
     assign leds[0] = ~rx_led;
@@ -58,11 +57,11 @@ module top (
         .btns(btns),
         .leds({8{invert_switch}} ^ btns),
 
-        .tm_data_in (tm_data_in),
-        .tm_data_out(tm_data_out),
+        .tm_miso(tm_miso),
+        .tm_mosi(tm_mosi),
         .tm_data_dir(tm_data_dir),
-        .tm_clk_out (tm_clk),
-        .tm_stb_out (tm_stb)
+        .tm_clk_out(tm_clk),
+        .tm_stb_out(tm_stb)
     );
 
     genvar i;
