@@ -1,4 +1,6 @@
-module tm1638_interface (
+module tm1638_interface #(
+    parameter CLK_DIV_FACTOR = 14
+) (
     input wire clk,
     input wire rst_n,
 
@@ -40,11 +42,11 @@ module tm1638_interface (
 
     reg [4:0] counter;
 
-    assign main_sequence[0] = {1'b0, 1'b0, 8'b01000000}; // Normal Mode, Auto increment, Write (2)
+    assign main_sequence[0] = {1'b0, 1'b0, 8'b01000000};  // Normal Mode, Auto increment, Write (2)
     assign main_sequence[1] = {1'b1, 1'b0, 8'b00000000};
-    assign main_sequence[2] = {1'b0, 1'b0, 8'b10001111}; // Display ON, Full brightness (3)
+    assign main_sequence[2] = {1'b0, 1'b0, 8'b10001111};  // Display ON, Full brightness (3)
     assign main_sequence[3] = {1'b1, 1'b0, 8'b00000000};
-    assign main_sequence[4] = {1'b0, 1'b0, 8'b11000000}; // Start from 0 address (4)
+    assign main_sequence[4] = {1'b0, 1'b0, 8'b11000000};  // Start from 0 address (4)
     assign main_sequence[5] = {1'b0, 1'b0, disp_0};
     assign main_sequence[6] = {1'b0, 1'b0, disp_1};
     assign main_sequence[7] = {1'b0, 1'b0, disp_2};
@@ -65,7 +67,7 @@ module tm1638_interface (
     assign main_sequence[22] = {1'b0, 1'b0, 8'b01000010};
     assign main_sequence[23] = {1'b0, 1'b1, 8'b00000000};
     assign main_sequence[24] = {1'b1, 1'b0, 8'b00000000};
-    assign main_sequence[25] = {1'b0, 1'b0, 8'b01000000}; // Normal Mode, Auto increment, Write (2)
+    assign main_sequence[25] = {1'b0, 1'b0, 8'b01000000};  // Normal Mode, Auto increment, Write (2)
     assign main_sequence[26] = {1'b1, 1'b0, 8'b00000000};
 
     always @(posedge clk) begin
@@ -86,7 +88,9 @@ module tm1638_interface (
         end
     end
 
-    tm1638 TM1638 (
+    tm1638 #(
+        .CLK_DIV_FACTOR(CLK_DIV_FACTOR)
+    ) TM1638 (
         .clk(clk),
         .rst(~rst_n),
 

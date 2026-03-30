@@ -1,4 +1,6 @@
-module led_and_key (
+module led_and_key #(
+    parameter CLK_DIV_FACTOR = 14
+) (
     input wire clk,
     input wire rst_n,
 
@@ -34,7 +36,9 @@ module led_and_key (
     assign btns[6] = all_btns[23];
     assign btns[7] = all_btns[31];
 
-    tm1638_interface TmInterface (
+    tm1638_interface #(
+        .CLK_DIV_FACTOR(CLK_DIV_FACTOR)
+    ) TmInterface (
         .clk  (clk),
         .rst_n(rst_n),
 
