@@ -4,3 +4,5 @@
 /impl/temp
 /tm1638.gtkw
 /tm1638.vcd
+/src/uart_to_bus/
+!/src/uart_to_bus/uart_to_bus.ipc
