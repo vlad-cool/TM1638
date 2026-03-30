@@ -56,7 +56,11 @@ module tm1638 #(
         if (rst) begin
             clk_div_counter <= 0;
         end else begin
-            clk_div_counter <= clk_div_counter == CLK_DIV_FACTOR - 1 ? 4'b0 : clk_div_counter + 1'b1;
+            if (clk_div_counter == CLK_DIV_FACTOR - 1) begin
+                clk_div_counter <= 0;
+            end else begin
+                clk_div_counter <= clk_div_counter + 1'b1;
+            end
         end
     end
 
